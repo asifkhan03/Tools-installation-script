@@ -1,19 +1,32 @@
-##Install in Amazon Ubuntu
-#!binbash
+#!/bin/bash
+set -e  # Exit on error
+
+# Update package list
 sudo apt update -y
 
-sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+# Install necessary dependencies
+sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
 
-curl -fsSL httpsdownload.docker.comlinuxubuntugpg  sudo apt-key add -
+# Add Docker's official GPG key
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
-sudo add-apt-repository deb [arch=amd64] httpsdownload.docker.comlinuxubuntu bionic stable -y
+# Add Docker repository
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
+# Update package list again
 sudo apt update -y
 
-apt-cache policy docker-ce -y
+# Verify available Docker versions
+apt-cache policy docker-ce
 
-sudo apt install docker-ce -y
+# Install Docker
+sudo apt install -y docker-ce
 
-#sudo systemctl status docker
+# Ensure Docker service is running
+sudo systemctl enable --now docker
 
-sudo chmod 777 varrundocker.sock
+# Adjust permissions for Docker socket (optional)
+sudo chmod 666 /var/run/docker.sock
+
+# Verify Docker installation
+docker --version
