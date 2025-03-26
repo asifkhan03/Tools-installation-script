@@ -1,32 +1,37 @@
-#!/bin/bash
-set -e  # Exit on error
+# Add Docker's official GPG key:
 
-# Update package list
-sudo apt update -y
+# Update the package list
+sudo apt-get update
 
-# Install necessary dependencies
-sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
+# Install the required packages
+sudo apt-get install ca-certificates curl
 
-# Add Docker's official GPG key
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+# Create the /etc/apt/keyrings directory with appropriate permissions
+sudo install -m 0755 -d /etc/apt/keyrings
 
-# Add Docker repository
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+# Download Docker's GPG key and save it to /etc/apt/keyrings/docker.asc
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 
-# Update package list again
-sudo apt update -y
+# Change the permissions of the Docker GPG key file to be readable by all users
+sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-# Verify available Docker versions
-apt-cache policy docker-ce
+# Add the Docker repository to Apt sources
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# Install Docker
-sudo apt install -y docker-ce
+# Update the package list again to include the Docker repository
+sudo apt-get update
 
-# Ensure Docker service is running
-sudo systemctl enable --now docker
+# Install Docker Engine, CLI, containerd, Buildx plugin, and Compose plugin
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
 
-# Adjust permissions for Docker socket (optional)
-sudo chmod 666 /var/run/docker.sock
+# Add the current user to the docker group to manage Docker as a non-root user
+sudo usermod -aG docker ubuntu
 
-# Verify Docker installation
-docker --version
+# Refresh the group membership
+newgrp docker 
+
+# Check the status of the Docker service to ensure it's running
+sudo systemctl status docker
