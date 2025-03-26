@@ -1,7 +1,5 @@
 #! /bin/bash
 
-#### this script author is Aseem Akram - Cloud Aseem Youtube channel #####
-
 # Add the Ansible PPA (Personal Package Archive) to the system
 sudo apt-add-repository ppa:ansible/ansible -y
 
